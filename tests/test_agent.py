@@ -1,4 +1,4 @@
-from agent.agent import GodotAgent
+from agent.godot_agent import GodotAgent
 from providers.base import LLMProvider, Message
 
 class FakeProvider(LLMProvider):
