@@ -5,6 +5,8 @@ description = "A local AI development agent for godot Engine"
 requires-python = ">=3.14"
 dependencies = [
     "ollama",
+    "httpx",
+    "beautifulsoup4",
 ]
 
 [project.optional-dependencies]
