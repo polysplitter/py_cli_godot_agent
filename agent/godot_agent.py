@@ -1,0 +1,113 @@
+from pathlib import Path
+
+from providers.base import LLMProvider, Message
+from agent.tool_router import parse_tool_request
+from tools.godot_docs_tool import GodotDocsTool
+
+
+PROMPT_PATH = (
+    Path(__file__).parent.parent
+    / "prompts"
+    / "system_prompt.txt"
+)
+
+TOOL_SELECTION_PROMPT = (
+    Path(__file__).parent.parent
+    / "prompts"
+    / "tool_selection.txt"
+)
+
+class GodotAgent:
+
+    def __init__(self, provider: LLMProvider) -> None:
+        self.provider = provider
+        self.docs_tool = GodotDocsTool()
+
+        system_prompt = PROMPT_PATH.read_text(
+            encoding="utf-8"
+        ).strip()
+
+        self.tool_selection_prompt = TOOL_SELECTION_PROMPT.read_text(
+            encoding="utf-8"
+        ).strip()
+
+        self.messages: list[Message] = [
+            {
+                "role": "system",
+                "content": system_prompt,
+            }
+        ]
+
+    def _select_tool(self, prompt: str):
+        tool_messages: list[Message] = [
+            {
+                "role": "system",
+                "content": self.tool_selection_prompt
+            },
+            {
+                "role": "user",
+                "content": prompt,
+            },
+        ]
+
+        response = self.provider.chat(tool_messages)
+
+        return parse_tool_request(response)
+
+    def _execute_tool(self, request) -> str | None:
+        if request is None:
+            return None
+
+        if request.tool == "godot_docs":
+            if request.class_name is None:
+                return None
+
+            return self.docs_tool.get_class_docs(
+                request.class_name
+            )
+
+        return None
+
+    def ask(self, prompt: str) -> str:
+        self.messages.append(
+            {
+                "role": "user",
+                "content": prompt,
+            }
+        )
+
+        tool_request = self._select_tool(prompt)
+        tool_context = self._execute_tool(tool_request)
+
+        if tool_context:
+            context_message: Message = {
+                "role": "system",
+                "content": (
+                    "Use the following official Godot documentation "
+                    "to help answer the user's latest question.\n\n"
+                    f"{tool_context}"
+                )
+            }
+
+            response_messages = [
+                self.messages[0],
+                context_message,
+                *self.messages[1:],
+            ]
+
+            response = self.provider.chat(
+                response_messages
+            )
+        else:
+            response = self.provider.chat(
+                self.messages
+            )
+
+        self.messages.append(
+            {
+                "role": "assistant",
+                "content": response,
+            }
+        )
+
+        return response
