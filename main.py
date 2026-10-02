@@ -1,12 +1,18 @@
 from agent.godot_agent import GodotAgent
 from providers.ollama_provider import OllamaProvider
+from tools.godot_docs_tool import GodotDocsTool
 
 MODEL = "gemma4"
 
 
 def main() -> None:
     provider = OllamaProvider(model=MODEL)
-    agent = GodotAgent(provider)
+    docs_tool = GodotDocsTool()
+
+    agent = GodotAgent(
+        provider=provider,
+        docs_tool=docs_tool,
+    )
 
     print(f"Godot Agent ({MODEL})")
     print("Type 'exit' or 'quit' to stop.")

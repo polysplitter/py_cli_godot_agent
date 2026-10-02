@@ -19,9 +19,13 @@ TOOL_SELECTION_PROMPT = (
 
 class GodotAgent:
 
-    def __init__(self, provider: LLMProvider) -> None:
+    def __init__(
+            self, 
+            provider: LLMProvider,
+            docs_tool = GodotDocsTool,
+            ) -> None:
         self.provider = provider
-        self.docs_tool = GodotDocsTool()
+        self.docs_tool = docs_tool
 
         system_prompt = PROMPT_PATH.read_text(
             encoding="utf-8"

@@ -2,6 +2,7 @@ from providers.base import Message
 
 from unittest.mock import Mock
 from agent.godot_agent import GodotAgent
+from tools.godot_docs_tool import GodotDocsTool
 
 
 class FakeProvider:
@@ -26,7 +27,16 @@ def test_agent_uses_godot_docs():
         ]
     )
 
-    agent = GodotAgent(provider)
+    docs_tool = Mock(spec=GodotDocsTool)
+
+    docs_tool.get_class_docs.return_value = (
+        "Official Timer documenation"
+    )
+
+    agent = GodotAgent(
+        provider=provider,
+        docs_tool=docs_tool,
+    )
 
     agent.docs_tool.get_class_docs = Mock(
         return_value="Official Timer documentation"

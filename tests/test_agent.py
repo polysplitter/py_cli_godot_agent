@@ -1,5 +1,8 @@
 from agent.godot_agent import GodotAgent
 from providers.base import LLMProvider, Message
+from unittest.mock import Mock
+
+from tools.godot_docs_tool import GodotDocsTool
 
 class FakeProvider(LLMProvider):
 
@@ -8,7 +11,11 @@ class FakeProvider(LLMProvider):
 
 def test_agent_returns_provider_response() -> None:
     provider = FakeProvider()
-    agent = GodotAgent(provider)
+    docs_tool = Mock(spec=GodotDocsTool)  
+    agent = GodotAgent(
+        provider=provider,
+        docs_tool=docs_tool,
+    )
 
     response = agent.ask(
         "How do I create a CharacterBody2D"
@@ -18,7 +25,11 @@ def test_agent_returns_provider_response() -> None:
 
 def test_agent_remembers_conversation() -> None:
     provider = FakeProvider()
-    agent = GodotAgent(provider)
+    docs_tool = Mock(spec=GodotDocsTool)  
+    agent = GodotAgent(
+        provider=provider,
+        docs_tool=docs_tool,
+    )
 
     agent.ask("Create a player controller.")
     agent.ask("Add jumping to it.")
