@@ -38,16 +38,13 @@ class GodotAgent:
             }
         ]
 
-    def _select_tool(self, prompt: str):
+    def _select_tool(self):
         tool_messages: list[Message] = [
             {
                 "role": "system",
-                "content": self.tool_selection_prompt
+                "content": self.tool_selection_prompt,
             },
-            {
-                "role": "user",
-                "content": prompt,
-            },
+            *self.messages[1:],
         ]
 
         response = self.provider.chat(tool_messages)
@@ -76,7 +73,7 @@ class GodotAgent:
             }
         )
 
-        tool_request = self._select_tool(prompt)
+        tool_request = self._select_tool()
         tool_context = self._execute_tool(tool_request)
 
         if tool_context:
