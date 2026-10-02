@@ -24,4 +24,4 @@ jobs:
           pip install -e .[dev]
 
       - name: Run pytest
-        run: pytest
+        run: pytest -v -vv --tb=short
