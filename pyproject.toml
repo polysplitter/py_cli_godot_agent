@@ -1,0 +1,25 @@
+[project]
+name = "godot-agent"
+version = "0.1.0"
+description = "A local AI development agent for godot Engine"
+requires-python = ">=3.14"
+dependencies = [
+    "ollama",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
+[tool.setuptools]
+packages = [
+    "agent",
+    "providers",
+    "config",
+    "prompts"
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

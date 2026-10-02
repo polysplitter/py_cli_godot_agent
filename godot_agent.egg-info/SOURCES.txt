@@ -1,0 +1,13 @@
+pyproject.toml
+agent/__init__.py
+agent/agent.py
+config/settings.py
+godot_agent.egg-info/PKG-INFO
+godot_agent.egg-info/SOURCES.txt
+godot_agent.egg-info/dependency_links.txt
+godot_agent.egg-info/requires.txt
+godot_agent.egg-info/top_level.txt
+providers/__init__.py
+providers/base.py
+providers/ollama_provider.py
+tests/test_ollama_provider.py
