@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Godot Docs Tool",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "tools.godot_docs_tool",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal"
+        }
+    ]
+}
