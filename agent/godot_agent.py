@@ -55,7 +55,11 @@ class GodotAgent:
 
         return parse_tool_request(response)
 
-    def _execute_tool(self, request) -> str | None:
+    def _execute_tool(
+            self,
+            request,
+            prompt: str,
+    ) -> str | None:
         if request is None:
             return None
 
@@ -63,8 +67,9 @@ class GodotAgent:
             if request.class_name is None:
                 return None
 
-            return self.docs_tool.get_class_docs(
-                request.class_name
+            return self.docs_tool.search_class_docs(
+                class_name=request.class_name,
+                query=prompt,
             )
 
         return None
@@ -78,7 +83,7 @@ class GodotAgent:
         )
 
         tool_request = self._select_tool()
-        tool_context = self._execute_tool(tool_request)
+        tool_context = self._execute_tool(tool_request, prompt)
 
         if tool_context:
             context_message: Message = {

@@ -29,17 +29,13 @@ def test_agent_uses_godot_docs():
 
     docs_tool = Mock(spec=GodotDocsTool)
 
-    docs_tool.get_class_docs.return_value = (
-        "Official Timer documenation"
+    docs_tool.search_class_docs.return_value = (
+        "Official Timer documentation"
     )
 
     agent = GodotAgent(
         provider=provider,
-        docs_tool=docs_tool,
-    )
-
-    agent.docs_tool.get_class_docs = Mock(
-        return_value="Official Timer documentation"
+        docs_tool=docs_tool
     )
 
     response = agent.ask(
@@ -48,7 +44,10 @@ def test_agent_uses_godot_docs():
 
     assert response == "Use the timeout signal."
 
-    agent.docs_tool.get_class_docs.assert_called_once_with("Timer")
+    docs_tool.search_class_docs.assert_called_once_with(
+        class_name="Timer",
+        query="How do I know when a Timer finishes?",
+    )
 
     assert len(provider.calls) == 2
 
