@@ -5,7 +5,7 @@ from dataclasses import dataclass
 @dataclass
 class ToolRequest:
     tool: str
-    class_name: str | None = None
+    class_names: list[str]
 
 
 def parse_tool_request(response: str) -> ToolRequest | None:
@@ -19,7 +19,12 @@ def parse_tool_request(response: str) -> ToolRequest | None:
     if not tool:
         return None
 
+    class_names = data.get("class_names", [])
+
+    if not isinstance(class_names, list):
+        return None
+
     return ToolRequest(
         tool=tool,
-        class_name=data.get("class_name"),
+        class_names=class_names,
     )

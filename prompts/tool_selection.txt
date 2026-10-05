@@ -11,8 +11,11 @@ If documentation would help answer the question, respond ONLY with JSON:
 
 {
   "tool": "godot_docs",
-  "class_name": "GodotClassName"
+  "class_name": ["GodotClassName"]
 }
+
+You may request multiple Godot classes when the question
+requires documentation from more than one class.
 
 Example:
 
@@ -22,18 +25,18 @@ How do I know when a Timer finishes?
 Response:
 {
   "tool": "godot_docs",
-  "class_name": "Timer"
+  "class_name": ["Timer"]
 }
 
 Example:
 
 User:
-How does Area2D detect a player entering it?
+How do I start a Timer when the player enters an Area2D?
 
 Response:
 {
   "tool": "godot_docs",
-  "class_name": "Area2D"
+  "class_names": ["Area2D", "Timer"]
 }
 
 If no Godot class documentation is required, respond ONLY with:

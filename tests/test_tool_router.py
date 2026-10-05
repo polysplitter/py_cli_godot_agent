@@ -5,7 +5,7 @@ def test_parse_godot_docs_request():
     response = """
 {
     "tool": "godot_docs",
-    "class_name": "Timer"
+    "class_names": ["Timer"]
 }
 """
 
@@ -13,7 +13,25 @@ def test_parse_godot_docs_request():
 
     assert request is not None
     assert request.tool == "godot_docs"
-    assert request.class_name == "Timer"
+    assert request.class_names == ["Timer"]
+
+
+def test_parse_multiple_godot_docs_classes():
+    response = """
+    {
+        "tool": "godot_docs",
+        "class_names": ["Area2D", "Timer"]
+    }
+    """
+
+    request = parse_tool_request(response)
+
+    assert request is not None
+    assert request.tool == "godot_docs"
+    assert request.class_names == [
+        "Area2D",
+        "Timer",
+    ]
 
 
 def test_parse_none_request():
@@ -27,7 +45,7 @@ def test_parse_none_request():
 
     assert request is not None
     assert request.tool == "none"
-    assert request.class_name is None
+    assert request.class_names == []
 
 
 def test_invalid_json_returns_none():

@@ -22,7 +22,7 @@ class GodotAgent:
     def __init__(
             self, 
             provider: LLMProvider,
-            docs_tool = GodotDocsTool,
+            docs_tool: GodotDocsTool,
             ) -> None:
         self.provider = provider
         self.docs_tool = docs_tool
@@ -56,23 +56,39 @@ class GodotAgent:
         return parse_tool_request(response)
 
     def _execute_tool(
-            self,
-            request,
-            prompt: str,
+        self,
+        request,
+        prompt: str,
     ) -> str | None:
         if request is None:
             return None
 
-        if request.tool == "godot_docs":
-            if request.class_name is None:
-                return None
+        if request.tool != "godot_docs":
+            return None
 
-            return self.docs_tool.search_class_docs(
-                class_name=request.class_name,
-                query=prompt,
-            )
+        if not request.class_names:
+            return None
 
-        return None
+        results: list[str] = []
+
+        for class_name in request.class_names:
+            try:
+                docs = self.docs_tool.search_class_docs(
+                    class_name=class_name,
+                    query=prompt,
+                )
+            except Exception:
+                continue
+
+            if docs:
+                results.append(
+                    f"Godot class: {class_name}\n\n{docs}"
+                )
+
+        if not results:
+            return None
+
+        return "\n\n==========\n\n".join(results)
 
     def ask(self, prompt: str) -> str:
         self.messages.append(
