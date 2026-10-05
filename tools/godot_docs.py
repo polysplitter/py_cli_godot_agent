@@ -1,6 +1,10 @@
 import httpx
 from bs4 import BeautifulSoup
 
+
+class GodotDocsError(Exception):
+    """Raised when godot documentation cannot be retrieved."""
+
 class GodotDocsClient:
     BASE_URL = "https://docs.godotengine.org/en/stable"
 
@@ -13,10 +17,16 @@ class GodotDocsClient:
     def get_page(self, path: str) -> str:
         url = f"{self.BASE_URL}/{path.lstrip('/')}"
 
-        response = self.client.get(url)
-        response.raise_for_status()
+        try:
+            response = self.client.get(url)
+            response.raise_for_status()
+        except httpx.HTTPError as error:
+            raise GodotDocsError(
+                    f"Failed to retrive Godot documentation: {url}"
+                ) from error
 
         return response.text
+                
 
     def get_page_text(self, path: str) -> str:
         html = self.get_page(path)
@@ -30,7 +40,7 @@ class GodotDocsClient:
         )
 
         if content is None:
-            raise ValueError(
+            raise GodotDocsError(
                 f"Could not find documentation content for: {path}"
             )
 

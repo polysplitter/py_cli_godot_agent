@@ -3,6 +3,7 @@ from pathlib import Path
 from providers.base import LLMProvider, Message
 from agent.tool_router import parse_tool_request
 from tools.godot_docs_tool import GodotDocsTool
+from tools.godot_docs import GodotDocsError
 
 
 PROMPT_PATH = (
@@ -77,7 +78,7 @@ class GodotAgent:
                     class_name=class_name,
                     query=prompt,
                 )
-            except Exception:
+            except GodotDocsError:
                 continue
 
             if docs:
