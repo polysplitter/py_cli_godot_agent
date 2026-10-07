@@ -4,6 +4,7 @@ from providers.base import LLMProvider, Message
 from agent.tool_router import parse_tool_request
 from tools.godot_docs_tool import GodotDocsTool
 from tools.godot_docs import GodotDocsError
+from tools.godot_project_tool import GodotProjectTool
 
 
 PROMPT_PATH = (
@@ -24,9 +25,11 @@ class GodotAgent:
             self, 
             provider: LLMProvider,
             docs_tool: GodotDocsTool,
+            project_tool: GodotProjectTool | None = None,
             ) -> None:
         self.provider = provider
         self.docs_tool = docs_tool
+        self.project_tool = project_tool
 
         system_prompt = PROMPT_PATH.read_text(
             encoding="utf-8"
@@ -57,39 +60,56 @@ class GodotAgent:
         return parse_tool_request(response)
 
     def _execute_tool(
-        self,
-        request,
-        prompt: str,
+            self,
+            request,
+            prompt: str,
     ) -> str | None:
         if request is None:
             return None
 
-        if request.tool != "godot_docs":
-            return None
+        if request.tool == "godot_docs":
+            if not request.class_names:
+                return None
 
-        if not request.class_names:
-            return None
+            results: list[str] = []
 
-        results: list[str] = []
+            for class_name in request.class_names:
+                try:
+                    docs = self.docs_tool.search_class_docs(
+                        class_name=class_name,
+                        query=prompt,
+                    )
+                except GodotDocsError:
+                    continue
 
-        for class_name in request.class_names:
-            try:
-                docs = self.docs_tool.search_class_docs(
-                    class_name=class_name,
-                    query=prompt,
+                if docs:
+                    results.append(
+                        f"Godot class: {class_name}\n\n{docs}"
+                    )
+
+            if not results:
+                return None
+
+            return "\n\n=========\n\n".join(results)
+
+        if request.tool == "godot_project":
+            if self.project_tool is None:
+                return None
+
+            if request.action == "search_files":
+                if not request.query:
+                    return None
+
+                matches = self.project_tool.search_files(
+                    request.query
                 )
-            except GodotDocsError:
-                continue
 
-            if docs:
-                results.append(
-                    f"Godot class: {class_name}\n\n{docs}"
-                )
+                if not matches:
+                    return None
 
-        if not results:
-            return None
+                return "\n".join(matches)
 
-        return "\n\n==========\n\n".join(results)
+        return None
 
     def ask(self, prompt: str) -> str:
         self.messages.append(
